@@ -23,16 +23,17 @@ bool ReadInputFile(const std::string &filePath)
         std::cout<<"Num:"<<inputArray.size()<<std::endl;
     }
     catch (const std::exception &e){
+        std::cerr<<e.what()<<std::endl;
         return false;
     }
     return true;
 }
 
-__int64 count_split_inv(const std::vector<int> &inputArray1,const std::vector<int> &inputArray2,std::vector<int> &outputArray)
+unsigned int count_split_inv(const std::vector<int> &inputArray1,const std::vector<int> &inputArray2,std::vector<int> &outputArray)
 {
     outputArray.resize(inputArray1.size()+inputArray2.size(),0);
     int i=0,j=0;
-    __int64 inv_count=0;
+    unsigned int inv_count=0;
     for (int k=0;k<outputArray.size();++k)
     {
         if (i>=inputArray1.size())
@@ -62,7 +63,7 @@ __int64 count_split_inv(const std::vector<int> &inputArray1,const std::vector<in
 }
 
 
-__int64 sort_and_count(const std::vector<int> &inputArray,std::vector<int> &outputArray)
+unsigned int sort_and_count(const std::vector<int> &inputArray,std::vector<int> &outputArray)
 {
     if (inputArray.size()==1)
     {
@@ -72,16 +73,16 @@ __int64 sort_and_count(const std::vector<int> &inputArray,std::vector<int> &outp
 
     size_t half = inputArray.size()/2;
     std::vector<int> output1,output2;
-    __int64 x = sort_and_count(std::vector<int>(inputArray.begin(),inputArray.begin()+half),output1);
-    __int64 y = sort_and_count(std::vector<int>(inputArray.begin()+half,inputArray.end()),output2);
+    unsigned int x = sort_and_count(std::vector<int>(inputArray.begin(),inputArray.begin()+half),output1);
+    unsigned int y = sort_and_count(std::vector<int>(inputArray.begin()+half,inputArray.end()),output2);
 
-    __int64 z = count_split_inv(output1,output2,outputArray);
+    unsigned int z = count_split_inv(output1,output2,outputArray);
     return x+y+z;
 }
 
-__int64 Brute(const std::vector<int> &inputArray)
+unsigned int Brute(const std::vector<int> &inputArray)
 {
-    __int64 count = 0;
+    unsigned int count = 0;
     for (int i=0;i<inputArray.size();++i)
     {
         for (int j=i+1;j<inputArray.size();++j)
@@ -111,7 +112,7 @@ int main(int argc,char** argv)
 
     //Merge and get inversions' number
     clock_t t1 = clock();
-    __int64 count = sort_and_count(inputArray,outputArray);
+    unsigned int count = sort_and_count(inputArray,outputArray);
     clock_t t2 = clock();
     std::cout<<"Merge_and_count:"<<count<<"\tcost time "<<static_cast<double>(t2-t1)/CLOCKS_PER_SEC<<"s"<<std::endl;
 

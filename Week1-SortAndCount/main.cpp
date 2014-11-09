@@ -36,18 +36,22 @@ unsigned int count_split_inv(const std::vector<int> &inputArray1,const std::vect
     unsigned int inv_count=0;
     for (int k=0;k<outputArray.size();++k)
     {
-        if (i>=inputArray1.size())
+        //inputArray2 is done
+        if (j==inputArray2.size())
         {
-            outputArray[k] = inputArray2[j];
-            ++j;
-            inv_count += inputArray1.size()-i;
+            std::copy(inputArray1.begin()+i,inputArray1.end(),outputArray.begin()+k);
+            break;
         }
-        else if (j>=inputArray2.size())
+        //inputArray1 is done
+        else if (i==inputArray1.size())
         {
-            outputArray[k] = inputArray1[i];
-            ++i;
+            std::copy(inputArray2.begin()+j,inputArray2.end(),outputArray.begin()+k);
+            inv_count += (inputArray1.size()-i);
+            break;
         }
-        else if (inputArray1[i]<inputArray2[j])
+
+
+        if (inputArray1[i]<inputArray2[j])
         {
             outputArray[k] = inputArray1[i];
             ++i;

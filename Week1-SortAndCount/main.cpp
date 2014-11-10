@@ -14,11 +14,12 @@ bool ReadInputFile(const std::string &filePath)
         std::ifstream fin(filePath.c_str());
         inputArray.clear();
         outputArray.clear();
-        int tampVal = 0;
         while (!fin.eof())
         {
+            int tampVal = -1;
             fin>>tampVal;
-            inputArray.push_back(tampVal);
+            if (tampVal>0)
+                inputArray.push_back(tampVal);
         }
         std::cout<<"Num:"<<inputArray.size()<<std::endl;
     }

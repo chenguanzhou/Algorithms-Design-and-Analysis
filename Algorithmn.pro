@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     Week1-SortAndCount\
-    Week2-QuickSort
+    Week2-QuickSort\
+    Week3-MinCut

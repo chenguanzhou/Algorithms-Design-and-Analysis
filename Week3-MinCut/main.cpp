@@ -122,10 +122,17 @@ int main(int argc,char**argv)
 
     g.printGraph();
     int minVal = std::numeric_limits<int>::max();
-    for (int i=0;i<1000000;++i)
+
+    int count = 0;
+    while (1)
     {
         int val = g.RandomContraction();
         minVal = minVal>val?val:minVal;
+        count++;
+        if (count%10000==0)
+        {
+            qDebug()<<"times:"<<count<<"\t. Currently the minimal cut is:"<<minVal;
+        }
     }
     qDebug()<<minVal;
     return 0;

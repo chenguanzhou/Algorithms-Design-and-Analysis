@@ -10,7 +10,7 @@ typedef int (*CHOOSE_PIVOT)(std::vector<int> &array,int begin,int end);
 void PrintVector(const std::vector<int> &array)
 {
     std::cout<<"[";
-    for(auto iter = array.begin();iter!=array.end();++iter)
+    for(std::vector<int>::const_iterator iter = array.begin();iter!=array.end();++iter)
     {
         std::cout<<*iter<<",";
     }
@@ -65,7 +65,10 @@ int ChooseMedianAsPivot(std::vector<int> &array,int begin,int end)
         return array[begin];
 
     int half = (begin+end-1)/2;
-    std::vector<int> candidates = {array[begin],array[end-1],array[half]};
+    std::vector<int> candidates;
+    candidates.push_back(array[begin]);
+    candidates.push_back(array[end -1]);
+    candidates.push_back(array[half]);
 
     if (std::max_element(candidates.begin(),candidates.end())==candidates.begin())
     {

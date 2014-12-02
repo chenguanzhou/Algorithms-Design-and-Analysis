@@ -1,0 +1,5 @@
+QT = core
+TEMPLATE = app
+CONFIG += console
+
+SOURCES += main.cpp

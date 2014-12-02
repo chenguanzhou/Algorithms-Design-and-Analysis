@@ -45,7 +45,7 @@ void DFS(int i,const QMultiMap<int,int> &edges,int &t,QMap<int,int> &vertexID_Fi
 //        qDebug()<<3;
     }
     ++t;
-    qDebug()<<"Finished ID:"<<i<<" with "<<t;
+//    qDebug()<<"Finished ID:"<<i<<" with "<<t;
     vertexID_FinishTime.insert(i,t);
 }
 

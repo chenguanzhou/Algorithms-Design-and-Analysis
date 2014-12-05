@@ -68,11 +68,11 @@ int main(int argc,char**argv)
     {
         try{
             if(argc<2)
-                throw std::exception("Params error!");
+                throw std::invalid_argument("Params error!");
 
             std::ifstream fin(argv[1]);
             if (fin.bad())
-                throw std::exception("Open file failed!");
+                throw std::ios_base::failure("Open file failed!");
 
             std::vector<long long> inputArray;
             std::copy(std::istream_iterator<long long>(fin),std::istream_iterator<long long>(),std::back_inserter(inputArray));

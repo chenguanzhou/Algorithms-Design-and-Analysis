@@ -1,123 +1,132 @@
-#include <iostream>
 #include <QtCore>
-#include <ctime>
 
-//QMultiMap<int,int> edges;
-QMultiMap<int,int> edges_inverse;
+struct Edge{
+    Edge(int from,int to,int w):fromID(from),toID(to),weight(w){}
+    int fromID;
+    int toID;
+    int weight;
+};
 
-
-const int VERTEX_COUNT = 875714;// 1<<id<<VERTEX_COUNT
-
-bool ReadFromFile(QString path)
+class Graph
 {
-    QFile file(path);
-    if (file.open(QFile::ReadOnly)==false)
-        return false;
-
-    edges_inverse.clear();
-    QTextStream in(&file);
-    while(!in.atEnd())
+public:
+    void ReadFromFile(QString fileName)
     {
-        int from,to;
-        in>>from>>to;
-//        edges.insert(from,to);
-        edges_inverse.insert(to,from);
+        QFile file(fileName);
+        if (file.open(QFile::ReadOnly)==false)
+            throw "Read file failed";
+        QTextStream in(&file);
+        while (!in.atEnd())
+        {
+            QString line = in.readLine();
+            if (line.isEmpty())
+                continue;
+            QStringList lineList = line.split("\t",QString::SkipEmptyParts);
+            int vertexID = lineList[0].toInt();
+            lineList.pop_front();
+//            qDebug()<<vertexID<<":"<<lineList;
+            vertexList<<vertexID;
+            foreach (QString word, lineList) {
+                QStringList list = word.split(",");
+                int toID = list[0].toInt();
+                int weight = list[1].toDouble();
+                Edge e(vertexID,toID,weight);
+                edges.push_back(e);
+            }
+        }
+
     }
 
-//    qDebug()<<"edges:"<<edges;
 
-    return true;
-}
+    void Dijkstra(int start)
+    {
+        if (vertexList.contains(start)==false)
+            throw "Start vertex is not exist";
 
-void DFS(int i,const QMultiMap<int,int> &edges,int &t,QMap<int,int> &vertexID_FinishTime,QSet<int> &isExplored,QMap<int,int> &leader,int currentNode)
+        QMap<int,int> minDis;
+        QMap<int,QList<int> > path;
+
+        QSet<int> exploredVertex;
+        QSet<int> unexploredVertex = vertexList.toSet();
+        exploredVertex.insert(start);
+        unexploredVertex.remove(start);
+
+        minDis.insert(start,0);
+        path.insert(start,QList<int>());
+
+        while(!unexploredVertex.empty())
+        {
+            QList<Edge> candidateEdges;
+            foreach (Edge e, edges) {
+                if (exploredVertex.contains(e.fromID) && unexploredVertex.contains(e.toID))
+                {
+                    candidateEdges.push_back(e);
+                }
+            }
+
+
+            int minScore = std::numeric_limits<int>::max();
+            int minScoreIndex = -1;
+            for (int i=0;i<candidateEdges.count();++i){
+                Edge e = candidateEdges[i];
+                int score = minDis[e.fromID] + e.weight;
+                if (score<minScore)
+                {
+                    minScore = score;
+                    minScoreIndex = i;
+                }
+            }
+
+            if (minScoreIndex==-1)
+                continue;
+
+            int fromID = candidateEdges[minScoreIndex].fromID;
+            int toID = candidateEdges[minScoreIndex].toID;
+            minDis[toID] = minScore;
+            path[toID] = path.value(fromID);
+            path[toID].push_back(toID);
+            exploredVertex.insert(toID);
+            unexploredVertex.remove(toID);
+
+//            qDebug()<<minScoreIndex<<candidateEdges[minScoreIndex].fromID<<candidateEdges[minScoreIndex].toID;
+//            qDebug()<<minDis;
+//            qDebug()<<path;
+//            qDebug()<<exploredVertex;
+//            qDebug()<<unexploredVertex;
+//            qDebug()<<"\n";
+        }
+
+        qDebug()<<minDis;
+        qDebug()<<path;
+
+        QList<int> ids = {7,37,59,82,99,115,133,165,188,197};
+        foreach (int id, ids) {
+            qDebug()<<id<<minDis[id]<<path[id];
+        }
+    }
+private:
+    QList<int> vertexList;
+    QList<Edge> edges;
+};
+
+
+
+
+
+int main(int argc,char** argv)
 {
-//    qDebug()<<-1;
-    isExplored.insert(i);
-    leader[i] = currentNode;
-//    qDebug()<<0;
-    foreach (int id, edges.values(i)) {
-//        qDebug()<<1;
-        if (!isExplored.contains(id))
-        {
-//            qDebug()<<2;
-            DFS(id,edges,t,vertexID_FinishTime,isExplored,leader,currentNode);
-        }
-//        qDebug()<<3;
-    }
-    ++t;
-    qDebug()<<"Finished ID:"<<i<<" with "<<t;
-    vertexID_FinishTime.insert(i,t);
-}
-
-int main(int argc,char**argv)
-{
-    if (argc<1)
+    try
     {
-        qCritical()<<"Params error!";
-        return 0;
+        if (argc<=1)
+            throw QString("Params error!");
+
+        Graph g;
+        g.ReadFromFile(QString::fromLocal8Bit(argv[1]));
+        g.Dijkstra(1);
     }
-
-
-    if (ReadFromFile(QString::fromLocal8Bit(argv[1]))==false)
+    catch(QString msg)
     {
-        qCritical()<<"Read file failed!";
-        return 0;
+        qCritical()<<"Error: "<<msg;
     }
-
-    QCoreApplication app(argc,argv);
-    QMap<int,int> vertexID_FinishTime;
-
-    qDebug()<<"Start First Loop";
-
-    //First loop
-    int t = 0;
-    int s = 0;
-    QMap<int,int> leader;
-    QSet<int> isExplored;
-    for (int i=1;i<=VERTEX_COUNT;++i)
-    {
-        if (!isExplored.contains(i))
-        {
-            s = i;
-            DFS(i,edges_inverse,t,vertexID_FinishTime,isExplored,leader,s);
-        }
-    }
-
-
-//    qDebug()<<"leader:"<<leader;
-//    qDebug()<<"vertexID_FinishTime:"<<vertexID_FinishTime;
-
-    qDebug()<<"Start Second Loop";
-
-    //Second loop
-    t = 0;
-    s = 0;
-    leader.clear();
-    isExplored.clear();
-    QMultiMap<int,int> newGraghEdge;
-    foreach (int fromID, edges_inverse.keys().toSet()) {
-        QList<int> values = edges_inverse.values(fromID);
-//        qDebug()<<fromID<<values;
-        foreach (int toID, values) {
-            newGraghEdge.insert(VERTEX_COUNT - vertexID_FinishTime[toID] + 1, VERTEX_COUNT - vertexID_FinishTime[fromID] + 1);
-        }
-    }
-    for (int i=1;i<=VERTEX_COUNT;++i)
-    {
-        if (!isExplored.contains(i))
-        {
-            s = i;
-            DFS(i,newGraghEdge,t,vertexID_FinishTime,isExplored,leader,s);
-        }
-    }
-
-    QList<int> values = leader.values();
-    QMap<int,int> statistic;
-    foreach (int value, values) {
-        statistic[value]++;
-    }
-    QList<int> result = statistic.values();
-    qSort(result);
-    qDebug()<<result;
-    return app.exec();
+    return 0;
 }
